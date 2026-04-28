@@ -1,0 +1,51 @@
+services:
+  greenclaw-api:
+    build: .
+    container_name: greenclaw-api
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - GREENCLAW_SECRET=${GREENCLAW_SECRET:-change-me}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - QDRANT_URL=http://greenclaw-qdrant:6333
+    volumes:
+      - ./config:/app/config
+      - greenclaw-data:/app/data
+    depends_on:
+      - greenclaw-qdrant
+    networks:
+      - greenclaw-net
+
+  greenclaw-web:
+    container_name: greenclaw-web
+    restart: unless-stopped
+    command: python apps/web/server.py
+    ports:
+      - "19790:19790"
+    environment:
+      - GREENCLAW_API_URL=http://greenclaw-api:8081
+    depends_on:
+      - greenclaw-api
+    networks:
+      - greenclaw-net
+
+  greenclaw-qdrant:
+    image: qdrant/qdrant:latest
+    container_name: greenclaw-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - greenclaw-net
+
+volumes:
+  greenclaw-data:
+  qdrant-data:
+
+networks:
+  greenclaw-net:
+    driver: bridge

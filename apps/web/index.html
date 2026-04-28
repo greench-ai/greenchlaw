@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GreenchClaw 🌿 — Cannabis AI Agent</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a1208;--sidebar-bg:#0d1a0b;--sidebar-border:#1a2e18;
+  --surface:#111f0f;--surface-hover:#162212;--border:#1e3319;
+  --text:#e8f5e3;--text-2:#8ba888;--text-3:#3d5a38;
+  --accent:#22c55e;--accent-light:#4ade80;--accent-glow:rgba(34,197,94,0.12);
+  --danger:#ef4444;--success:#22c55e;--warning:#f59e0b;
+  --radius:8px;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --sidebar-w:260px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--text-3);border-radius:2px}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.sidebar-header{padding:14px 16px;border-bottom:1px solid var(--sidebar-border);display:flex;align-items:center;gap:10px}
+.logo{font-size:18px;font-weight:700;background:linear-gradient(135deg,#22c55e,#4ade80);-webkit-background-clip:text;-webkit-text-fill-color:transparent;flex:1;user-select:none}
+.logo small{display:block;font-size:9px;font-weight:400;letter-spacing:1px;text-transform:uppercase;-webkit-text-fill-color:var(--text-3)}
+.new-chat-btn{width:30px;height:30px;border-radius:7px;background:var(--accent);border:none;color:white;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.new-chat-btn:hover{background:var(--accent-light);transform:scale(1.05)}
+.sidebar-search{padding:10px 12px;border-bottom:1px solid var(--sidebar-border)}
+.sidebar-search input{width:100%;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;outline:none}
+.sidebar-search input:focus{border-color:var(--accent)}
+.sidebar-search input::placeholder{color:var(--text-3)}
+.sidebar-scroll{flex:1;overflow-y:auto;padding:8px}
+.session-group{margin-bottom:12px}
+.session-group-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-3);padding:4px 8px 6px}
+.session-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius);cursor:pointer;font-size:13px;color:var(--text-2);transition:background .1s}
+.session-item:hover{background:var(--surface-hover);color:var(--text)}
+.session-item.active{background:var(--accent-glow);color:var(--accent-light)}
+.session-item-icon{font-size:14px}
+.session-item-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sidebar-nav{border-top:1px solid var(--sidebar-border);padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.nav-btn{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:var(--radius);cursor:pointer;font-size:12px;color:var(--text-2);background:none;border:none;width:100%;text-align:left;transition:all .1s}
+.nav-btn:hover{background:var(--surface-hover);color:var(--text)}
+.nav-btn.active{background:var(--accent-glow);color:var(--accent-light)}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.topbar-left{display:flex;align-items:center;gap:8px;flex:1;min-width:200px}
+.topbar-right{display:flex;align-items:center;gap:8px}
+select{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:var(--radius);font-size:12px;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238ba888' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;padding-right:22px}
+select:focus{border-color:var(--accent)}
+.toggle-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:11px;cursor:pointer;transition:all .15s}
+.toggle-btn:hover{border-color:var(--text-3);color:var(--text)}
+.toggle-btn.on{background:var(--accent-glow);border-color:var(--accent);color:var(--accent-light)}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--text-3)}
+.status-dot.ok{background:var(--success)}
+
+/* CHAT AREA */
+.chat-area{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column}
+.welcome{max-width:640px;margin:auto;width:100%;padding:40px 0;text-align:center}
+.welcome h1{font-size:28px;font-weight:600;margin-bottom:8px;background:linear-gradient(135deg,#e8f5e3,#8ba888);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.welcome p{color:var(--text-2);font-size:14px;margin-bottom:24px}
+.welcome-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:left}
+.welcome-card{padding:12px;border:1px solid var(--border);border-radius:var(--radius-lg);cursor:pointer;transition:all .15s;background:var(--surface)}
+.welcome-card:hover{border-color:var(--accent);background:var(--accent-glow)}
+.welcome-card-title{font-size:13px;font-weight:600;margin-bottom:4px}
+.welcome-card-desc{font-size:11px;color:var(--text-2)}
+
+/* MESSAGE */
+.message{max-width:720px;width:100%;margin:0 auto;padding:12px 0}
+.message-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.message-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}
+.role-user .message-avatar{background:var(--accent);color:white}
+.role-assistant .message-avatar{background:var(--surface-hover);border:1px solid var(--border)}
+.message-meta{font-size:11px;color:var(--text-3)}
+.message-content{font-size:14px;line-height:1.7}
+.message-content pre{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;overflow-x:auto;margin:10px 0;font-size:13px;line-height:1.5}
+.message-content code{background:var(--surface);padding:2px 5px;border-radius:4px;font-size:12.5px;font-family:'SF Mono','Fira Code',monospace;color:var(--accent-light)}
+.message-content pre code{background:none;padding:0;color:var(--text)}
+.message-content p{margin:8px 0}
+.message-content a{color:var(--accent-light);text-decoration:none}
+.message-content a:hover{text-decoration:underline}
+.message-actions{display:flex;gap:8px;margin-top:8px;opacity:0;transition:opacity .1s}
+.message:hover .message-actions{opacity:1}
+.msg-action{font-size:11px;color:var(--text-3);cursor:pointer;padding:3px 8px;border-radius:4px;background:none;border:none;transition:all .1s}
+.msg-action:hover{background:var(--surface-hover);color:var(--text-2)}
+.typing{display:flex;gap:4px}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--text-3);animation:typing 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+@keyframes typing{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(-4px);opacity:.4}}
+
+/* INPUT */
+.input-area{padding:12px 20px 16px;border-top:1px solid var(--border);flex-shrink:0}
+.input-container{max-width:720px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);transition:border-color .15s}
+.input-container:focus-within{border-color:var(--accent)}
+.input-row{display:flex;align-items:flex-end;padding:10px 14px;gap:10px}
+#message-input{flex:1;background:none;border:none;color:var(--text);font-size:14px;resize:none;max-height:200px;outline:none;line-height:1.5;font-family:var(--font)}
+#message-input::placeholder{color:var(--text-3)}
+.input-actions{display:flex;align-items:center;gap:6px}
+.icon-btn{width:32px;height:32px;border-radius:7px;border:none;background:none;color:var(--text-3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s;font-size:16px}
+.icon-btn:hover{background:var(--surface-hover);color:var(--text-2)}
+.send-btn{width:34px;height:34px;border-radius:8px;background:var(--accent);border:none;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:15px}
+.send-btn:hover{background:var(--accent-light);transform:scale(1.05)}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.input-footer{display:flex;align-items:center;justify-content:space-between;padding:4px 14px 8px;font-size:10px;color:var(--text-3)}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{background:var(--sidebar-bg);border:1px solid var(--border);border-radius:var(--radius-lg);width:min(560px,95vw);max-height:80vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 25px 50px rgba(0,0,0,0.5);transform:scale(0.95);transition:transform .2s}
+.modal-overlay.open .modal{transform:scale(1)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:15px;font-weight:600}
+.modal-close{width:28px;height:28px;border-radius:6px;border:none;background:none;color:var(--text-2);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--surface-hover)}
+.modal-body{flex:1;overflow-y:auto;padding:20px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+
+/* SETTINGS */
+.setting{margin-bottom:20px}
+.setting-label{font-size:13px;font-weight:600;margin-bottom:6px;display:block}
+.setting-desc{font-size:11px;color:var(--text-3);margin-bottom:6px}
+.setting input[type="text"],.setting input[type="password"]{width:100%;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;outline:none}
+.setting input:focus{border-color:var(--accent)}
+.setting select{width:100%}
+
+/* PANELS */
+.panel{display:none;flex-direction:column;height:100%}
+.panel.active{display:flex}
+.panel-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.panel-title{font-size:16px;font-weight:600}
+.panel-body{flex:1;overflow-y:auto;padding:16px 20px}
+.skill-card{border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px;cursor:pointer;transition:all .15s;background:var(--surface)}
+.skill-card:hover{border-color:var(--accent);background:var(--accent-glow)}
+.skill-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.skill-desc{font-size:12px;color:var(--text-2)}
+.skill-tags{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.skill-tag{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--surface-hover);color:var(--text-3)}
+
+/* BUTTONS */
+.btn{padding:8px 16px;border-radius:var(--radius);font-size:13px;cursor:pointer;border:none;transition:all .15s;font-family:var(--font)}
+.btn-primary{background:var(--accent);color:white}
+.btn-primary:hover{background:var(--accent-light)}
+.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--surface-hover)}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;right:20px;z-index:9999;background:var(--surface);border:1px solid var(--border);padding:10px 16px;border-radius:var(--radius);font-size:13px;color:var(--text);opacity:0;transform:translateY(10px);transition:all .2s;pointer-events:none;max-width:300px}
+#toast.show{opacity:1;transform:translateY(0)}
+#toast.success{border-color:var(--success)}
+#toast.error{border-color:var(--danger)}
+
+@media(max-width:768px){.sidebar{display:none}.welcome-grid{grid-template-columns:1fr}.topbar{padding:8px 12px}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">GreenchClaw<small>🌿 Cannabis AI</small></div>
+    <button class="new-chat-btn" onclick="newChat()" title="New chat">+</button>
+  </div>
+  <div class="sidebar-search">
+    <input type="text" placeholder="Search chats..." id="chat-search">
+  </div>
+  <div class="sidebar-scroll" id="sessions-list"></div>
+  <div class="sidebar-nav">
+    <button class="nav-btn active" onclick="switchPanel('chat')" id="nav-chat">
+      🌿 Chat
+    </button>
+    <button class="nav-btn" onclick="switchPanel('knowledge')" id="nav-knowledge">
+      📚 Knowledge
+    </button>
+    <button class="nav-btn" onclick="switchPanel('skills')" id="nav-skills">
+      🛠️ Skills
+    </button>
+    <button class="nav-btn" onclick="openSettings()">
+      ⚙️ Settings
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <select id="provider-select" onchange="updateModels()">
+        <option value="openrouter">OpenRouter</option>
+        <option value="openai">OpenAI</option>
+        <option value="anthropic">Anthropic</option>
+        <option value="ollama">Ollama</option>
+      </select>
+      <select id="model-select">
+        <option value="qwen/qwen3.5-plus">qwen3.5-plus</option>
+      </select>
+    </div>
+    <div class="topbar-right">
+      <button class="toggle-btn on" id="toggle-rag" onclick="toggleRag()">📚 RAG</button>
+      <div class="status-dot ok" id="status-dot"></div>
+    </div>
+  </div>
+
+  <!-- CHAT PANEL -->
+  <div class="panel active" id="panel-chat">
+    <div class="chat-area" id="chat-area">
+      <div class="welcome" id="welcome">
+        <h1>🌿 GreenchClaw</h1>
+        <p>Cannabis industry AI agent — strains, grow advice, products, compliance</p>
+        <div class="welcome-grid">
+          <div class="welcome-card" onclick="sendQuick('Recommend a strain for sleep, beginner growing')">
+            <div class="welcome-card-title">😴 Sleep</div>
+            <div class="welcome-card-desc">Strains for relaxation and sleep</div>
+          </div>
+          <div class="welcome-card" onclick="sendQuick('I want to start growing indoors, beginner level')">
+            <div class="welcome-card-title">🌱 Grow Setup</div>
+            <div class="welcome-card-desc">Indoor growing equipment guide</div>
+          </div>
+          <div class="welcome-card" onclick="sendQuick('What CBD product for anxiety?')">
+            <div class="welcome-card-title">💊 CBD for Anxiety</div>
+            <div class="welcome-card-desc">CBD product recommendations</div>
+          </div>
+          <div class="welcome-card" onclick="sendQuick('What strains are available at SativaBox?')">
+            <div class="welcome-card-title">🛒 SativaBox Products</div>
+            <div class="welcome-card-desc">Browse our product catalog</div>
+          </div>
+          <div class="welcome-card" onclick="sendQuick('Luxembourg CBD law — what can I sell?')">
+            <div class="welcome-card-title">⚖️ Luxembourg Law</div>
+            <div class="welcome-card-desc">Compliance and regulations</div>
+          </div>
+          <div class="welcome-card" onclick="sendQuick('What equipment do I need for a 60x60 tent?')">
+            <div class="welcome-card-title">🔧 Equipment</div>
+            <div class="welcome-card-desc">Complete grow kit recommendations</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INPUT -->
+    <div class="input-area">
+      <div class="input-container">
+        <div class="input-row">
+          <textarea id="message-input" rows="1" placeholder="Ask about strains, growing, products..." onkeydown="onInputKey(event)" oninput="autoResize(this)"></textarea>
+          <div class="input-actions">
+            <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+          </div>
+        </div>
+        <div class="input-footer">
+          <span>GreenchClaw v1.0 · Cannabis AI · sativabox.lu</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KNOWLEDGE PANEL -->
+  <div class="panel" id="panel-knowledge">
+    <div class="panel-header"><span class="panel-title">📚 Cannabis Knowledge Base</span></div>
+    <div class="panel-body">
+      <div class="skill-card" onclick="sendQuick('Tell me about indica vs sativa strains')">
+        <div class="skill-name">🌿 Cannabis Strains</div>
+        <div class="skill-desc">500+ strains with THC/CBD profiles, effects, genetics, and growing info</div>
+      </div>
+      <div class="skill-card" onclick="sendQuick('Indoor grow guide for beginners')">
+        <div class="skill-name">🌱 Indoor Growing</div>
+        <div class="skill-desc">Complete guide: LED setup, nutrients, watering, harvest</div>
+      </div>
+      <div class="skill-card" onclick="sendQuick('Outdoor growing guide Luxembourg')">
+        <div class="skill-name">☀️ Outdoor Growing</div>
+        <div class="skill-desc">Climate-adapted growing for Luxembourg and EU</div>
+      </div>
+      <div class="skill-card" onclick="sendQuick('Luxembourg cannabis regulations 2026')">
+        <div class="skill-name">⚖️ Luxembourg Law</div>
+        <div class="skill-desc">Current regulations for CBD, hemp, and compliant products</div>
+      </div>
+      <div class="skill-card" onclick="sendQuick('SativaBox product categories and bestsellers')">
+        <div class="skill-name">🛒 SativaBox Catalog</div>
+        <div class="skill-desc">Our products: GROW, SMOKE, CBD & HEMP, SEEDS</div>
+      </div>
+      <div class="skill-card" onclick="sendQuick('CBD vs THC — what is the difference?')">
+        <div class="skill-name">💊 CBD vs THC</div>
+        <div class="skill-desc">Understanding cannabinoids, effects, and medical uses</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SKILLS PANEL -->
+  <div class="panel" id="panel-skills">
+    <div class="panel-header"><span class="panel-title">🛠️ GreenchClaw Skills</span></div>
+    <div class="panel-body">
+      <div class="skill-card" onclick="sendQuick('Run strain guide — customer wants energy and creativity')">
+        <div class="skill-name">🌿 Strain Guide</div>
+        <div class="skill-desc">Match customer needs to cannabis strains</div>
+        <div class="skill-tags"><span class="skill-tag">strains</span><span class="skill-tag">recommendations</span></div>
+      </div>
+      <div class="skill-card" onclick="sendQuick('Run grow advice — beginner, small tent, tight budget')">
+        <div class="skill-name">🌱 Grow Advice</div>
+        <div class="skill-desc">Equipment and growing guidance for any level</div>
+        <div class="skill-tags"><span class="skill-tag">growing</span><span class="skill-tag">equipment</span></div>
+      </div>
+      <div class="skill-card" onclick="sendQuick('Run product match — customer has anxiety, prefers oils')">
+        <div class="skill-name">🛒 Product Match</div>
+        <div class="skill-desc">Match symptoms to SativaBox products</div>
+        <div class="skill-tags"><span class="skill-tag">ecommerce</span><span class="skill-tag">recommendations</span></div>
+      </div>
+      <div class="skill-card" onclick="sendQuick('Run compliance check — selling CBD flowers in Germany')">
+        <div class="skill-name">⚖️ Compliance Luxembourg</div>
+        <div class="skill-desc">Check product legality for Luxembourg and EU</div>
+        <div class="skill-tags"><span class="skill-tag">law</span><span class="skill-tag">compliance</span></div>
+      </div>
+      <div class="skill-card" onclick="sendQuick('Run sativabox-chat — customer asking about autoflower seeds')">
+        <div class="skill-name">💬 SativaBox Customer Chat</div>
+        <div class="skill-desc">Customer service chatbot for sativabox.lu</div>
+        <div class="skill-tags"><span class="skill-tag">support</span><span class="skill-tag">chatbot</span></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeModal('settings-modal')">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">⚙️ Settings</span>
+      <button class="modal-close" onclick="closeModal('settings-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="setting">
+        <label class="setting-label">OpenRouter API Key</label>
+        <div class="setting-desc">Get your key from openrouter.ai</div>
+        <input type="password" id="s-api-key" placeholder="sk-or-v1-..." onchange="saveSettings()">
+      </div>
+      <div class="setting">
+        <label class="setting-label">Default Model</label>
+        <input type="text" id="s-model" value="qwen/qwen3.5-plus" onchange="saveSettings()">
+      </div>
+      <div class="setting">
+        <label class="setting-label">Shop URL</label>
+        <input type="text" id="s-shop-url" value="https://sativabox.lu" readonly style="opacity:0.6">
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+      <div style="font-size:12px;color:var(--text-2)">
+        <div>GreenchClaw v1.0</div>
+        <div>Built for SativaBox.lu 🌿</div>
+        <div>Powered by NexusClaw framework</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('settings-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSettings();closeModal('settings-modal')">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API_BASE = 'http://localhost:8081';
+let state={sessionId:null,messages:[],streaming:false,rag:true,provider:'openrouter',model:'qwen/qwen3.5-plus',token:null};
+
+function init(){
+  loadSettings();
+  checkHealth();
+}
+async function checkHealth(){
+  try{
+    const r=await fetch(API_BASE+'/health');
+    if(r.ok){document.getElementById('status-dot').className='status-dot ok';document.title='GreenchClaw 🌿 — Online'}
+    else throw new Error();
+  }catch{
+    document.getElementById('status-dot').className='status-dot';
+    document.title='GreenchClaw 🌿 — Offline';
+  }
+}
+
+function renderMessages(){
+  const area=document.getElementById('chat-area');
+  const welcome=document.getElementById('welcome');
+  if(state.messages.length===0){welcome.style.display='';area.querySelectorAll('.message').forEach(e=>e.remove());return}
+  welcome.style.display='none';
+  let html='';
+  state.messages.forEach((m,i)=>{
+    const avatar=m.role==='user'?'👤':'🌿';
+    const cls='role-'+m.role;
+    html+=`<div class="message ${cls}">
+      <div class="message-header">
+        <div class="message-avatar">${avatar}</div>
+        <span class="message-meta">${m.role==='user'?'You':'GreenchClaw'}</span>
+      </div>
+      <div class="message-content">${renderMarkdown(m.content||'')}</div>
+    </div>`;
+  });
+  area.querySelectorAll('.message').forEach(e=>e.remove());
+  area.insertAdjacentHTML('beforeend',html);
+  area.scrollTop=area.scrollHeight;
+}
+
+function renderMarkdown(text){
+  if(!text)return'';
+  text=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  text=text.replace(/```(\w*)\n?([\s\S]*?)```/g,(_,l,c)=>`<pre><code>${c.trim()}</code></pre>`);
+  text=text.replace(/`([^`]+)`/g,'<code>$1</code>');
+  text=text.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  text=text.replace(/\*([^*]+)\*/g,'<em>$1</em>');
+  text=text.replace(/^### (.+)$/gm,'<h4>$1</h4>');
+  text=text.replace(/^## (.+)$/gm,'<h3>$1</h3>');
+  text=text.replace(/^# (.+)$/gm,'<h2>$1</h2>');
+  text=text.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+  text=text.replace(/\n\n/g,'</p><p>');
+  return'<p>'+text+'</p>';
+}
+
+function addMessage(role,content){
+  state.messages.push({role,content});
+  renderMessages();
+}
+
+async function sendMessage(){
+  const input=document.getElementById('message-input');
+  const text=input.value.trim();
+  if(!text||state.streaming)return;
+  state.streaming=true;document.getElementById('send-btn').disabled=true;
+  input.value='';input.style.height='auto';
+  addMessage('user',text);
+  const msgEl={role:'assistant',content:'',ts:new Date().toISOString()};
+  state.messages.push(msgEl);
+  renderMessages();
+  const area=document.getElementById('chat-area');
+  const lastMsg=area.querySelector('.message:last-child');
+  const contentEl=lastMsg?.querySelector('.message-content');
+  if(contentEl)contentEl.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';
+  try{
+    const res=await fetch(API_BASE+'/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+(state.token||'')},
+      body:JSON.stringify({message:text,provider:state.provider,model:state.model,stream:false,session_id:state.sessionId,use_rag:state.rag})
+    });
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    const full=data.response||'';
+    msgEl.content=full;
+    if(contentEl)contentEl.innerHTML=renderMarkdown(full);
+  }catch(err){
+    if(contentEl)contentEl.innerHTML=`<span style="color:var(--danger)">Error: ${err.message}. Is the API running on port 8081?</span>`;
+    toast('API error','error');
+  }
+  state.streaming=false;document.getElementById('send-btn').disabled=false;
+  area.scrollTop=area.scrollHeight;
+}
+
+function sendQuick(text){
+  document.getElementById('message-input').value=text;
+  sendMessage();
+}
+
+function onInputKey(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}
+}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,200)+'px'}
+
+function switchPanel(name){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name)?.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('nav-'+name)?.classList.add('active');
+}
+
+function toggleRag(){
+  state.rag=!state.rag;
+  document.getElementById('toggle-rag').classList.toggle('on',state.rag);
+  toast('RAG '+(state.rag?'enabled':'disabled'));
+}
+
+function updateModels(){
+  state.provider=document.getElementById('provider-select').value;
+  const sel=document.getElementById('model-select');
+  const models={
+    openrouter:[{v:'qwen/qwen3.5-plus',n:'qwen3.5-plus'},{v:'qwen/qwen3-32b',n:'qwen3-32b'}],
+    openai:[{v:'gpt-4o',n:'GPT-4o'},{v:'gpt-4o-mini',n:'GPT-4o mini'}],
+    anthropic:[{v:'claude-3-5-sonnet-20241022',n:'Claude 3.5 Sonnet'}],
+    ollama:[{v:'llama3.2',n:'llama3.2'},{v:'qwen2.5',n:'qwen2.5'}]
+  };
+  sel.innerHTML=(models[state.provider]||[]).map(m=>`<option value="${m.v}">${m.n}</option>`).join('');
+  state.model=sel.value;
+}
+
+function openSettings(){document.getElementById('settings-modal').classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function saveSettings(){
+  const cfg={apiKey:document.getElementById('s-api-key').value,model:document.getElementById('s-model').value};
+  localStorage.setItem('greenclaw_cfg',JSON.stringify(cfg));
+  state.model=cfg.model||'qwen/qwen3.5-plus';
+  document.getElementById('model-select').value=state.model;
+  toast('Settings saved');
+}
+function loadSettings(){
+  try{const cfg=JSON.parse(localStorage.getItem('greenclaw_cfg')||'{}');if(cfg.model){state.model=cfg.model;document.getElementById('s-model').value=cfg.model}}catch{}
+}
+
+function toast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className='show '+(type||'');setTimeout(()=>el.className='',2500)}
+
+function newChat(){state.sessionId=null;state.messages=[];renderMessages();document.getElementById('message-input').focus()}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'))});
+init();
+setInterval(checkHealth,30000);
+</script>
+</body>
+</html>
