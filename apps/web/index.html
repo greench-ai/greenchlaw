@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GreenchClaw 🌿 — Cannabis AI Agent</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -11,6 +12,7 @@
   --surface:#111f0f;--surface-hover:#162212;--border:#1e3319;
   --text:#e8f5e3;--text-2:#8ba888;--text-3:#3d5a38;
   --accent:#22c55e;--accent-light:#4ade80;--accent-glow:rgba(34,197,94,0.12);
+  --purple:#a855f7;--purple-light:#c084fc;--purple-glow:rgba(168,85,247,0.10);
   --danger:#ef4444;--success:#22c55e;--warning:#f59e0b;
   --radius:8px;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
   --sidebar-w:260px;
@@ -19,8 +21,17 @@ html,body{height:100%;overflow:hidden}
 body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--text-3);border-radius:2px}
 
+/* HEMP LEAF DECORATIONS */
+.leaf-bg{
+  position:fixed;pointer-events:none;z-index:0;opacity:0.03;
+  fill:var(--accent);
+}
+.leaf-top-right{top:-40px;right:-40px;width:300px;height:300px;transform:rotate(15deg)}
+.leaf-bottom-left{bottom:-60px;left:-60px;width:350px;height:350px;transform:rotate(-30deg)}
+.leaf-top-left{top:40%;left:-80px;width:200px;height:200px;transform:rotate(-45deg)}
+
 /* SIDEBAR */
-.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;height:100dvh;overflow:hidden;position:relative;z-index:1}
 .sidebar-header{padding:14px 16px;border-bottom:1px solid var(--sidebar-border);display:flex;align-items:center;gap:10px}
 .logo{font-size:18px;font-weight:700;background:linear-gradient(135deg,#22c55e,#4ade80);-webkit-background-clip:text;-webkit-text-fill-color:transparent;flex:1;user-select:none}
 .logo small{display:block;font-size:9px;font-weight:400;letter-spacing:1px;text-transform:uppercase;-webkit-text-fill-color:var(--text-3)}
@@ -43,8 +54,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .nav-btn:hover{background:var(--surface-hover);color:var(--text)}
 .nav-btn.active{background:var(--accent-glow);color:var(--accent-light)}
 
+/* DECORATIVE CANNABIS LEAF DIVIDER IN SIDEBAR */
+.sidebar-leaf-divider{
+  display:flex;align-items:center;justify-content:center;padding:4px 16px;opacity:0.2
+}
+.sidebar-leaf-divider svg{width:60px;height:20px;fill:var(--accent)}
+
 /* MAIN */
-.main{flex:1;display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.main{flex:1;display:flex;flex-direction:column;height:100dvh;overflow:hidden;position:relative;z-index:1}
 
 /* TOPBAR */
 .topbar{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
@@ -60,8 +77,12 @@ select:focus{border-color:var(--accent)}
 
 /* CHAT AREA */
 .chat-area{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column}
-.welcome{max-width:640px;margin:auto;width:100%;padding:40px 0;text-align:center}
-.welcome h1{font-size:28px;font-weight:600;margin-bottom:8px;background:linear-gradient(135deg,#e8f5e3,#8ba888);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.welcome{max-width:640px;margin:auto;width:100%;padding:40px 0;text-align:center;position:relative}
+.welcome-leaf{
+  display:flex;justify-content:center;margin-bottom:16px;opacity:0.15
+}
+.welcome-leaf svg{width:80px;height:80px;fill:var(--accent)}
+.welcome h1{font-size:28px;font-weight:600;margin-bottom:8px;background:linear-gradient(135deg,#22c55e,#4ade80);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .welcome p{color:var(--text-2);font-size:14px;margin-bottom:24px}
 .welcome-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:left}
 .welcome-card{padding:12px;border:1px solid var(--border);border-radius:var(--radius-lg);cursor:pointer;transition:all .15s;background:var(--surface)}
@@ -140,6 +161,21 @@ select:focus{border-color:var(--accent)}
 .skill-tags{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
 .skill-tag{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--surface-hover);color:var(--text-3)}
 
+/* SECTION LEAF HEADER */
+.panel-header-leaf{
+  display:flex;align-items:center;gap:8px
+}
+.panel-header-leaf svg{width:20px;height:20px;fill:var(--accent);opacity:0.7}
+
+/* KNOWLEDGE PANEL SECTION */
+.knowledge-section{margin-bottom:20px}
+.knowledge-section-title{
+  display:flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;
+  color:var(--text-3);padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:12px
+}
+.knowledge-section-title svg{width:14px;height:14px;fill:var(--text-3)}
+
 /* BUTTONS */
 .btn{padding:8px 16px;border-radius:var(--radius);font-size:13px;cursor:pointer;border:none;transition:all .15s;font-family:var(--font)}
 .btn-primary{background:var(--accent);color:white}
@@ -153,10 +189,31 @@ select:focus{border-color:var(--accent)}
 #toast.success{border-color:var(--success)}
 #toast.error{border-color:var(--danger)}
 
+/* CANNABIS BUD DECORATION */
+.bud-decoration{
+  display:flex;justify-content:center;gap:16px;margin:12px 0;opacity:0.12
+}
+.bud-decoration svg{width:24px;height:24px;fill:var(--purple)}
+
 @media(max-width:768px){.sidebar{display:none}.welcome-grid{grid-template-columns:1fr}.topbar{padding:8px 12px}}
 </style>
 </head>
 <body>
+
+<!-- BACKGROUND CANNABIS LEAF DECORATIONS -->
+<svg class="leaf-bg leaf-top-right" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path d="M50 5 C30 15 10 35 5 55 C10 75 30 90 50 95 C70 90 90 75 95 55 C90 35 70 15 50 5Z M50 20 C55 35 55 65 50 80 C45 65 45 35 50 20Z"/>
+  <path d="M50 20 C35 30 20 40 15 55 C20 45 35 35 50 30 C65 35 80 45 85 55 C80 40 65 30 50 20Z"/>
+  <path d="M50 30 C40 38 28 45 22 55 C28 48 40 42 50 40 C60 42 72 48 78 55 C72 45 60 38 50 30Z"/>
+</svg>
+<svg class="leaf-bg leaf-bottom-left" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path d="M50 5 C30 15 10 35 5 55 C10 75 30 90 50 95 C70 90 90 75 95 55 C90 35 70 15 50 5Z M50 20 C55 35 55 65 50 80 C45 65 45 35 50 20Z"/>
+  <path d="M50 20 C35 30 20 40 15 55 C20 45 35 35 50 30 C65 35 80 45 85 55 C80 40 65 30 50 20Z"/>
+  <path d="M50 30 C40 38 28 45 22 55 C28 48 40 42 50 40 C60 42 72 48 78 55 C72 45 60 38 50 30Z"/>
+</svg>
+<svg class="leaf-bg leaf-top-left" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path d="M50 5 C30 15 10 35 5 55 C10 75 30 90 50 95 C70 90 90 75 95 55 C90 35 70 15 50 5Z M50 20 C55 35 55 65 50 80 C45 65 45 35 50 20Z"/>
+</svg>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
@@ -168,15 +225,27 @@ select:focus{border-color:var(--accent)}
     <input type="text" placeholder="Search chats..." id="chat-search">
   </div>
   <div class="sidebar-scroll" id="sessions-list"></div>
+
+  <!-- DECORATIVE LEAF DIVIDER -->
+  <div class="sidebar-leaf-divider">
+    <svg viewBox="0 0 120 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 15 C10 5 30 5 40 15 C30 10 20 10 10 15Z" opacity="0.6"/>
+      <path d="M30 15 C25 5 45 5 50 15 C45 10 35 10 30 15Z" opacity="0.8"/>
+      <path d="M50 15 C50 5 70 5 70 15 C70 10 60 10 50 15Z"/>
+      <path d="M70 15 C75 5 95 5 100 15 C95 10 85 10 70 15Z" opacity="0.8"/>
+      <path d="M90 15 C90 5 110 5 110 15 C110 10 100 10 90 15Z" opacity="0.6"/>
+    </svg>
+  </div>
+
   <div class="sidebar-nav">
     <button class="nav-btn active" onclick="switchPanel('chat')" id="nav-chat">
       🌿 Chat
     </button>
     <button class="nav-btn" onclick="switchPanel('knowledge')" id="nav-knowledge">
-      📚 Knowledge
+      🍃 Knowledge
     </button>
     <button class="nav-btn" onclick="switchPanel('skills')" id="nav-skills">
-      🛠️ Skills
+      🌱 Skills
     </button>
     <button class="nav-btn" onclick="openSettings()">
       ⚙️ Settings
@@ -190,6 +259,10 @@ select:focus{border-color:var(--accent)}
   <!-- TOP BAR -->
   <div class="topbar">
     <div class="topbar-left">
+      <svg width="18" height="18" viewBox="0 0 100 100" fill="var(--accent)" style="opacity:0.6">
+        <path d="M50 5 C30 15 10 35 5 55 C10 75 30 90 50 95 C70 90 90 75 95 55 C90 35 70 15 50 5Z M50 20 C55 35 55 65 50 80 C45 65 45 35 50 20Z"/>
+        <path d="M50 20 C35 30 20 40 15 55 C20 45 35 35 50 30 C65 35 80 45 85 55 C80 40 65 30 50 20Z"/>
+      </svg>
       <select id="provider-select" onchange="updateModels()">
         <option value="openrouter">OpenRouter</option>
         <option value="openai">OpenAI</option>
@@ -201,7 +274,7 @@ select:focus{border-color:var(--accent)}
       </select>
     </div>
     <div class="topbar-right">
-      <button class="toggle-btn on" id="toggle-rag" onclick="toggleRag()">📚 RAG</button>
+      <button class="toggle-btn on" id="toggle-rag" onclick="toggleRag()">🍃 RAG</button>
       <div class="status-dot ok" id="status-dot"></div>
     </div>
   </div>
@@ -210,8 +283,30 @@ select:focus{border-color:var(--accent)}
   <div class="panel active" id="panel-chat">
     <div class="chat-area" id="chat-area">
       <div class="welcome" id="welcome">
+        <!-- BIG CANNABIS LEAF -->
+        <div class="welcome-leaf">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 5 C30 15 10 35 5 55 C10 75 30 90 50 95 C70 90 90 75 95 55 C90 35 70 15 50 5Z"/>
+            <path d="M50 5 C50 20 50 50 50 95" stroke="var(--bg)" stroke-width="3" fill="none"/>
+            <path d="M50 20 C35 30 20 40 15 55 C20 45 35 35 50 30 C65 35 80 45 85 55 C80 40 65 30 50 20Z" fill="var(--bg)" opacity="0.15"/>
+            <path d="M50 30 C40 38 28 45 22 55 C28 48 40 42 50 40 C60 42 72 48 78 55 C72 45 60 38 50 30Z" fill="var(--bg)" opacity="0.1"/>
+            <!-- Leaf fingers left -->
+            <path d="M50 30 C40 25 30 20 25 15 C30 22 40 27 50 30Z"/>
+            <path d="M50 30 C55 22 62 18 68 12 C62 20 55 26 50 30Z"/>
+            <path d="M50 50 C35 45 22 38 15 30 C22 40 35 47 50 50Z"/>
+            <path d="M50 50 C65 45 78 38 85 30 C78 40 65 47 50 50Z"/>
+          </svg>
+        </div>
         <h1>🌿 GreenchClaw</h1>
         <p>Cannabis industry AI agent — strains, grow advice, products, compliance</p>
+
+        <!-- DECORATIVE BUD ICONS -->
+        <div class="bud-decoration">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="35"/><circle cx="50" cy="30" r="20" opacity="0.7"/><circle cx="35" cy="55" r="15" opacity="0.5"/><circle cx="65" cy="55" r="15" opacity="0.5"/></svg>
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="35"/><circle cx="50" cy="30" r="20" opacity="0.7"/><circle cx="35" cy="55" r="15" opacity="0.5"/><circle cx="65" cy="55" r="15" opacity="0.5"/></svg>
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="35"/><circle cx="50" cy="30" r="20" opacity="0.7"/><circle cx="35" cy="55" r="15" opacity="0.5"/><circle cx="65" cy="55" r="15" opacity="0.5"/></svg>
+        </div>
+
         <div class="welcome-grid">
           <div class="welcome-card" onclick="sendQuick('Recommend a strain for sleep, beginner growing')">
             <div class="welcome-card-title">😴 Sleep</div>
@@ -251,7 +346,7 @@ select:focus{border-color:var(--accent)}
           </div>
         </div>
         <div class="input-footer">
-          <span>GreenchClaw v1.0 · Cannabis AI · sativabox.lu</span>
+          <span>🌿 GreenchClaw v1.0 · Cannabis AI · sativabox.lu</span>
         </div>
       </div>
     </div>
@@ -259,38 +354,86 @@ select:focus{border-color:var(--accent)}
 
   <!-- KNOWLEDGE PANEL -->
   <div class="panel" id="panel-knowledge">
-    <div class="panel-header"><span class="panel-title">📚 Cannabis Knowledge Base</span></div>
+    <div class="panel-header">
+      <div class="panel-header-leaf">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 5 C30 15 10 35 5 55 C10 75 30 90 50 95 C70 90 90 75 95 55 C90 35 70 15 50 5Z"/>
+          <path d="M50 5 C50 20 50 50 50 95" stroke="var(--bg)" stroke-width="2" fill="none"/>
+        </svg>
+        <span class="panel-title">🍃 Cannabis Knowledge Base</span>
+      </div>
+    </div>
     <div class="panel-body">
-      <div class="skill-card" onclick="sendQuick('Tell me about indica vs sativa strains')">
-        <div class="skill-name">🌿 Cannabis Strains</div>
-        <div class="skill-desc">500+ strains with THC/CBD profiles, effects, genetics, and growing info</div>
+      <div class="knowledge-section">
+        <div class="knowledge-section-title">
+          <svg viewBox="0 0 100 100"><path d="M50 5 C30 15 10 35 5 55 C10 75 30 90 50 95 C70 90 90 75 95 55 C90 35 70 15 50 5Z"/></svg>
+          🌿 Strains
+        </div>
+        <div class="skill-card" onclick="sendQuick('Tell me about indica vs sativa strains')">
+          <div class="skill-name">🌿 Cannabis Strains</div>
+          <div class="skill-desc">500+ strains with THC/CBD profiles, effects, genetics, and growing info</div>
+        </div>
+        <div class="skill-card" onclick="sendQuick('What is the difference between THC and CBD?')">
+          <div class="skill-name">💜 THC vs CBD</div>
+          <div class="skill-desc">Understanding cannabinoids, effects, and medical uses</div>
+        </div>
+        <div class="skill-card" onclick="sendQuick('Best autoflower strains for beginners')">
+          <div class="skill-name">🌾 Autoflower Guide</div>
+          <div class="skill-desc">Fast-harvest, beginner-friendly strains</div>
+        </div>
       </div>
-      <div class="skill-card" onclick="sendQuick('Indoor grow guide for beginners')">
-        <div class="skill-name">🌱 Indoor Growing</div>
-        <div class="skill-desc">Complete guide: LED setup, nutrients, watering, harvest</div>
+
+      <div class="knowledge-section">
+        <div class="knowledge-section-title">
+          <svg viewBox="0 0 100 100"><path d="M50 5 C30 15 10 35 5 55 C10 75 30 90 50 95 C70 90 90 75 95 55 C90 35 70 15 50 5Z"/></svg>
+          🌱 Growing
+        </div>
+        <div class="skill-card" onclick="sendQuick('Indoor grow guide for beginners')">
+          <div class="skill-name">🌱 Indoor Growing</div>
+          <div class="skill-desc">Complete guide: LED setup, nutrients, watering, harvest</div>
+        </div>
+        <div class="skill-card" onclick="sendQuick('Outdoor growing guide Luxembourg')">
+          <div class="skill-name">☀️ Outdoor Growing</div>
+          <div class="skill-desc">Climate-adapted growing for Luxembourg and EU</div>
+        </div>
+        <div class="skill-card" onclick="sendQuick('Nutrient deficiency guide — yellow leaves')">
+          <div class="skill-name">🧪 Nutrients & Deficiencies</div>
+          <div class="skill-desc">NPK feeding, deficiency symptoms, pH management</div>
+        </div>
       </div>
-      <div class="skill-card" onclick="sendQuick('Outdoor growing guide Luxembourg')">
-        <div class="skill-name">☀️ Outdoor Growing</div>
-        <div class="skill-desc">Climate-adapted growing for Luxembourg and EU</div>
-      </div>
-      <div class="skill-card" onclick="sendQuick('Luxembourg cannabis regulations 2026')">
-        <div class="skill-name">⚖️ Luxembourg Law</div>
-        <div class="skill-desc">Current regulations for CBD, hemp, and compliant products</div>
-      </div>
-      <div class="skill-card" onclick="sendQuick('SativaBox product categories and bestsellers')">
-        <div class="skill-name">🛒 SativaBox Catalog</div>
-        <div class="skill-desc">Our products: GROW, SMOKE, CBD & HEMP, SEEDS</div>
-      </div>
-      <div class="skill-card" onclick="sendQuick('CBD vs THC — what is the difference?')">
-        <div class="skill-name">💊 CBD vs THC</div>
-        <div class="skill-desc">Understanding cannabinoids, effects, and medical uses</div>
+
+      <div class="knowledge-section">
+        <div class="knowledge-section-title">
+          <svg viewBox="0 0 100 100"><path d="M50 5 C30 15 10 35 5 55 C10 75 30 90 50 95 C70 90 90 75 95 55 C90 35 70 15 50 5Z"/></svg>
+          ⚖️ Compliance
+        </div>
+        <div class="skill-card" onclick="sendQuick('Luxembourg cannabis regulations 2026')">
+          <div class="skill-name">⚖️ Luxembourg Law</div>
+          <div class="skill-desc">Current regulations for CBD, hemp, and compliant products</div>
+        </div>
+        <div class="skill-card" onclick="sendQuick('EU cross-border CBD rules — shipping to Germany/France')">
+          <div class="skill-name">🌍 EU Regulations</div>
+          <div class="skill-desc">Cross-border CBD/THC rules per EU country</div>
+        </div>
+        <div class="skill-card" onclick="sendQuick('SativaBox product categories and bestsellers')">
+          <div class="skill-name">🛒 SativaBox Catalog</div>
+          <div class="skill-desc">Our products: GROW, SMOKE, CBD & HEMP, SEEDS</div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- SKILLS PANEL -->
   <div class="panel" id="panel-skills">
-    <div class="panel-header"><span class="panel-title">🛠️ GreenchClaw Skills</span></div>
+    <div class="panel-header">
+      <div class="panel-header-leaf">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 5 C30 15 10 35 5 55 C10 75 30 90 50 95 C70 90 90 75 95 55 C90 35 70 15 50 5Z"/>
+          <path d="M50 5 C50 20 50 50 50 95" stroke="var(--bg)" stroke-width="2" fill="none"/>
+        </svg>
+        <span class="panel-title">🌱 GreenchClaw Skills</span>
+      </div>
+    </div>
     <div class="panel-body">
       <div class="skill-card" onclick="sendQuick('Run strain guide — customer wants energy and creativity')">
         <div class="skill-name">🌿 Strain Guide</div>
@@ -308,12 +451,12 @@ select:focus{border-color:var(--accent)}
         <div class="skill-tags"><span class="skill-tag">ecommerce</span><span class="skill-tag">recommendations</span></div>
       </div>
       <div class="skill-card" onclick="sendQuick('Run compliance check — selling CBD flowers in Germany')">
-        <div class="skill-name">⚖️ Compliance Luxembourg</div>
+        <div class="skill-name">⚖️ Compliance Check</div>
         <div class="skill-desc">Check product legality for Luxembourg and EU</div>
         <div class="skill-tags"><span class="skill-tag">law</span><span class="skill-tag">compliance</span></div>
       </div>
       <div class="skill-card" onclick="sendQuick('Run sativabox-chat — customer asking about autoflower seeds')">
-        <div class="skill-name">💬 SativaBox Customer Chat</div>
+        <div class="skill-name">💬 SativaBox Chat</div>
         <div class="skill-desc">Customer service chatbot for sativabox.lu</div>
         <div class="skill-tags"><span class="skill-tag">support</span><span class="skill-tag">chatbot</span></div>
       </div>
@@ -343,10 +486,13 @@ select:focus{border-color:var(--accent)}
         <input type="text" id="s-shop-url" value="https://sativabox.lu" readonly style="opacity:0.6">
       </div>
       <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
-      <div style="font-size:12px;color:var(--text-2)">
-        <div>GreenchClaw v1.0</div>
-        <div>Built for SativaBox.lu 🌿</div>
-        <div>Powered by NexusClaw framework</div>
+      <div style="font-size:12px;color:var(--text-2);display:flex;align-items:center;gap:8px">
+        <span>🌿</span>
+        <div>
+          <div>GreenchClaw v1.0</div>
+          <div>Built for SativaBox.lu</div>
+          <div>Powered by NexusClaw</div>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -369,11 +515,11 @@ function init(){
 async function checkHealth(){
   try{
     const r=await fetch(API_BASE+'/health');
-    if(r.ok){document.getElementById('status-dot').className='status-dot ok';document.title='GreenchClaw 🌿 — Online'}
+    if(r.ok){document.getElementById('status-dot').className='status-dot ok';document.title='🌿 GreenchClaw — Online'}
     else throw new Error();
   }catch{
     document.getElementById('status-dot').className='status-dot';
-    document.title='GreenchClaw 🌿 — Offline';
+    document.title='🌿 GreenchClaw — Offline';
   }
 }
 
@@ -389,7 +535,7 @@ function renderMessages(){
     html+=`<div class="message ${cls}">
       <div class="message-header">
         <div class="message-avatar">${avatar}</div>
-        <span class="message-meta">${m.role==='user'?'You':'GreenchClaw'}</span>
+        <span class="message-meta">${m.role==='user'?'You':'GreenchClaw 🌿'}</span>
       </div>
       <div class="message-content">${renderMarkdown(m.content||'')}</div>
     </div>`;
@@ -495,7 +641,7 @@ function saveSettings(){
   localStorage.setItem('greenclaw_cfg',JSON.stringify(cfg));
   state.model=cfg.model||'qwen/qwen3.5-plus';
   document.getElementById('model-select').value=state.model;
-  toast('Settings saved');
+  toast('Settings saved 🌿');
 }
 function loadSettings(){
   try{const cfg=JSON.parse(localStorage.getItem('greenclaw_cfg')||'{}');if(cfg.model){state.model=cfg.model;document.getElementById('s-model').value=cfg.model}}catch{}
