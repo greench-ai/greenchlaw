@@ -91,7 +91,7 @@ python src/onboard/setup.py
 
 # Start
 python apps/api/main.py      # API on port 8081
-python apps/web/server.py     # Web UI on port 19790
+python apps/web/server.py     # Web UI on port 18420
 ```
 
 ## 📦 Powered By

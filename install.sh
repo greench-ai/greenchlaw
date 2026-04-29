@@ -83,7 +83,7 @@ create_config() {
   "name": "GreenchClaw",
   "business": "SativaBox.lu",
   "api": { "host": "0.0.0.0", "port": 8081 },
-  "web": { "host": "0.0.0.0", "port": 19790 },
+  "web": { "host": "0.0.0.0", "port": 18420 },
   "providers": {
     "openrouter": { "api_key": "" },
     "openai": { "api_key": "" },
@@ -138,8 +138,8 @@ start_greenclaw() {
   fi
   nohup $python apps/web/server.py > "$NEXUS_CONFIG_DIR/logs/web.log" 2>&1 &
   sleep 3
-  if curl -s http://localhost:19790/health &>/dev/null 2>&1; then
-    ok "Web UI started on port 19790"
+  if curl -s http://localhost:18420/health &>/dev/null 2>&1; then
+    ok "Web UI started on port 18420"
   else
     warn "Web UI failed — see $NEXUS_CONFIG_DIR/logs/web.log"
   fi
@@ -150,7 +150,7 @@ print_summary() {
   echo -e "${GREEN}═══════════════════════════════════════════════════════${NC}"
   echo -e "  ${GREEN}✅ GreenchClaw installed!${NC}"
   echo ""
-  echo -e "  🌿 Web UI:    ${GREEN}http://localhost:19790${NC}"
+  echo -e "  🌿 Web UI:    ${GREEN}http://localhost:18420${NC}"
   echo -e "  🔗 API:       ${GREEN}http://localhost:8081${NC}"
   echo -e "  🌱 Shop:     ${GREEN}https://sativabox.lu${NC}"
   echo ""

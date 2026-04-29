@@ -1,5 +1,5 @@
 """
-GreenchClaw Web UI Server — port 19790
+GreenchClaw Web UI Server — port 18420
 """
 import os
 from pathlib import Path
@@ -23,5 +23,5 @@ async def health():
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.environ.get("GREENCLAW_WEB_PORT", "19790"))
+    port = int(os.environ.get("GREENCLAW_WEB_PORT", "18420"))
     uvicorn.run(app, host="0.0.0.0", port=port)

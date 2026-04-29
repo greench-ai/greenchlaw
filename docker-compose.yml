@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
     command: python apps/web/server.py
     ports:
-      - "19790:19790"
+      - "18420:18420"
     environment:
       - GREENCLAW_API_URL=http://greenclaw-api:8081
     depends_on:
